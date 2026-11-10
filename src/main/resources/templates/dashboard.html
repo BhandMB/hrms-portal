@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Executive Workforce Dashboard</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Chart.js for enterprise analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-page="dashboard">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item active" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">Admin</b>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="mobile-menu">☰</div>
+                <div>
+                    <div class="eyebrow">Enterprise Workforce Intelligence</div>
+                    <h1>Good morning, <span id="welcomeUser">Admin</span> <span class="wave">👋</span></h1>
+                    <p>Live workforce indicators, attendance health, and executive compensation metrics.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <div class="top-search" style="position:relative;">
+                    <span>⌕</span>
+                    <input id="globalSearchInput" placeholder="Quick search employees, depts..." style="border:0;background:transparent;outline:none;font-size:13px;width:180px;">
+                    <kbd>⌘ K</kbd>
+                    <div id="globalSearchResults" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);box-shadow:0 10px 25px rgba(0,0,0,.15);border-radius:12px;margin-top:8px;z-index:99;padding:12px;max-height:300px;overflow-y:auto;border:1px solid var(--border);"></div>
+                </div>
+
+                <button class="icon-btn notification-btn" id="notificationBtn" title="Notifications">
+                    <span>♢</span><i></i>
+                </button>
+
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+
+                <a class="btn primary add-btn hr-only" href="/employee-form">
+                    <span>＋</span> Add employee
+                </a>
+            </div>
+        </header>
+
+        <!-- PAGE -->
+        <section class="page">
+            <div class="page-heading">
+                <div>
+                    <h2>Operational Overview</h2>
+                    <p>Real-time analytics across all corporate departments.</p>
+                </div>
+                <div class="date-chip">
+                    <span>◷</span>
+                    <span id="todayDate">Today</span>
+                </div>
+            </div>
+
+            <!-- STATISTICS CARDS -->
+            <div class="stats-grid">
+                <!-- TOTAL EMPLOYEES -->
+                <article class="stat-card" style="cursor:pointer" onclick="window.location.href='/employees'">
+                    <div class="stat-card-top">
+                        <div class="stat-icon indigo">♙</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total employees</span>
+                        <strong id="totalEmployees">—</strong>
+                        <small class="stat-positive"><span>↑</span> Active talent base</small>
+                    </div>
+                </article>
+
+                <!-- ACTIVE EMPLOYEES -->
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">✓</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Active employees</span>
+                        <strong id="activeEmployees">—</strong>
+                        <small id="activeRate" class="stat-positive">—% engagement</small>
+                    </div>
+                </article>
+
+                <!-- DEPARTMENTS -->
+                <article class="stat-card" style="cursor:pointer" onclick="window.location.href='/departments'">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">▣</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Departments</span>
+                        <strong id="totalDepartments">—</strong>
+                        <small>Operational units</small>
+                    </div>
+                </article>
+
+                <!-- MONTHLY PAYROLL -->
+                <article class="stat-card" style="cursor:pointer" onclick="window.location.href='/payroll'">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">₹</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Monthly payroll</span>
+                        <strong id="monthlyPayroll">—</strong>
+                        <small>Monthly gross</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- CHART ANALYTICS GRID -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:20px;margin-bottom:24px;">
+                <!-- WORKFORCE BY DEPARTMENT DOUGHNUT CHART -->
+                <section class="panel" style="padding:20px;border-radius:18px;">
+                    <div class="panel-head" style="margin-bottom:16px;">
+                        <div>
+                            <h2 style="font-size:16px;">Workforce Distribution</h2>
+                            <p style="font-size:12px;color:var(--muted);">Headcount across departments</p>
+                        </div>
+                        <a href="/departments" class="text-link" style="font-size:12px;">Departments →</a>
+                    </div>
+                    <div style="position:relative;height:240px;display:flex;align-items:center;justify-content:center;">
+                        <canvas id="deptChartCanvas"></canvas>
+                    </div>
+                </section>
+
+                <!-- ATTENDANCE STATUS DOUGHNUT CHART -->
+                <section class="panel" style="padding:20px;border-radius:18px;">
+                    <div class="panel-head" style="margin-bottom:16px;">
+                        <div>
+                            <h2 style="font-size:16px;">Today's Attendance Pulse</h2>
+                            <p style="font-size:12px;color:var(--muted);">Real-time check-in distribution</p>
+                        </div>
+                        <a href="/attendance" class="text-link" style="font-size:12px;">Clock Logs →</a>
+                    </div>
+                    <div style="position:relative;height:240px;display:flex;align-items:center;justify-content:center;">
+                        <canvas id="attendanceChartCanvas"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- MAIN DASHBOARD CONTENT GRID -->
+            <div class="dashboard-grid">
+                <!-- RECENT EMPLOYEES -->
+                <section class="panel recent-panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Recent Additions</h2>
+                            <p>Latest people onboarded to the organization</p>
+                        </div>
+                        <a href="/employees" class="text-link">View all →</a>
+                    </div>
+                    <div id="recentEmployees">
+                        <div class="loading">Loading directory...</div>
+                    </div>
+                </section>
+
+                <!-- UPCOMING CELEBRATIONS & ANNOUNCEMENTS -->
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Culture & Celebrations</h2>
+                            <p>Upcoming birthdays & work anniversaries</p>
+                        </div>
+                        <a href="/holidays" class="text-link">Holidays →</a>
+                    </div>
+                    <div id="celebrationsContainer" style="display:grid;gap:12px;padding:8px 0;">
+                        <div class="loading">Loading upcoming milestones...</div>
+                    </div>
+                </section>
+
+                <!-- COMPANY ANNOUNCEMENTS -->
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Company Announcements</h2>
+                            <p>Recent notices & organizational updates</p>
+                        </div>
+                        <a href="/announcements" class="text-link">All Notices →</a>
+                    </div>
+                    <div id="dashboardAnnouncements" style="display:grid;gap:12px;padding:8px 0;">
+                        <div class="loading">Loading announcements...</div>
+                    </div>
+                </section>
+
+                <!-- QUICK ACTIONS -->
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Quick Actions</h2>
+                            <p>Common workforce operations</p>
+                        </div>
+                    </div>
+                    <div class="quick-grid">
+                        <a href="/employee-form" class="quick hr-only">
+                            <span class="quick-icon">＋</span>
+                            <b>Add Employee</b>
+                            <small>Create profile</small>
+                        </a>
+                        <a href="/attendance" class="quick">
+                            <span class="quick-icon">◷</span>
+                            <b>Clock In / Out</b>
+                            <small>Daily log</small>
+                        </a>
+                        <a href="/leave" class="quick">
+                            <span class="quick-icon">♧</span>
+                            <b>Apply Leave</b>
+                            <small>PTO & vacation</small>
+                        </a>
+                        <a href="/payroll" class="quick">
+                            <span class="quick-icon">▤</span>
+                            <b>My Payslip</b>
+                            <small>Download PDF</small>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- ENTERPRISE MODULES DIRECTORY -->
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Enterprise Suite</h2>
+                            <p>Full suite of HRMS business modules</p>
+                        </div>
+                    </div>
+                    <div class="roadmap">
+                        <div class="roadmap-row done"><span>✓</span><div><b>Payroll Engine & PDF Slips</b><small>Automated tax slabs & downloadable payslips</small></div></div>
+                        <div class="roadmap-row done"><span>✓</span><div><b>Talent & Performance</b><small>KPI scorecards and review cycles</small></div></div>
+                        <div class="roadmap-row done"><span>✓</span><div><b>Company Bulletins</b><small>Announcements and broadcast notices</small></div></div>
+                        <div class="roadmap-row done"><span>✓</span><div><b>Corporate Holidays</b><small>Observed calendar & countdowns</small></div></div>
+                        <div class="roadmap-row done"><span>✓</span><div><b>Security & Audit Trail</b><small>Role-based access & compliance logs</small></div></div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notification-panel" id="notificationPanel">
+    <div class="notification-header">
+        <div>
+            <b>Live Notifications</b>
+            <small>System & HR events</small>
+        </div>
+        <button id="closeNotifications">×</button>
+    </div>
+    <div class="notification-item">
+        <span class="notification-dot green-dot"></span>
+        <div><b>HRMS Portal Active</b><small>Database and backend connected.</small></div>
+    </div>
+    <div class="notification-item">
+        <span class="notification-dot purple-dot"></span>
+        <div><b>Payroll Engine Ready</b><small>Downloadable PDF payslips available.</small></div>
+    </div>
+    <div class="notification-item">
+        <span class="notification-dot orange-dot"></span>
+        <div><b>Talent Appraisals</b><small>Performance review cycles enabled.</small></div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Attendance</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="attendance">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item active" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">Admin</b>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div>
+                    <div class="eyebrow">Time & Tracking</div>
+                    <h1>Attendance Management</h1>
+                    <p>Track employee clock-ins, daily presence, and working hours.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <div id="clockControls" style="display:flex;gap:8px;">
+                    <button id="clockInBtn" class="btn primary">Clock In <span>▶</span></button>
+                    <button id="clockOutBtn" class="btn secondary" style="display:none;">Clock Out <span>⏹</span></button>
+                </div>
+            </div>
+        </header>
+
+        <section class="page">
+            <!-- ATTENDANCE STATS -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">✓</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Present Today</span>
+                        <strong id="presentCount">—</strong>
+                        <small class="stat-positive">Active in workplace</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">◷</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Half Day</span>
+                        <strong id="halfDayCount">—</strong>
+                        <small>Partial shift</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">♧</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>On Leave</span>
+                        <strong id="leaveCount">—</strong>
+                        <small>Approved absence</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue">✕</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Absent</span>
+                        <strong id="absentCount">—</strong>
+                        <small>Unmarked / missing</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- ATTENDANCE LOGS TABLE -->
+            <div class="toolbar panel">
+                <div class="search">
+                    <span>⌕</span>
+                    <input id="attendanceSearch" placeholder="Filter by employee name or remarks...">
+                </div>
+                <input type="date" id="attendanceDateFilter" class="toolbar-date" style="min-height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                <select id="attendanceStatusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="PRESENT">Present</option>
+                    <option value="HALF_DAY">Half Day</option>
+                    <option value="ON_LEAVE">On Leave</option>
+                    <option value="ABSENT">Absent</option>
+                </select>
+                <button id="recordAttendanceBtn" class="btn primary role-write">＋ Mark Attendance</button>
+            </div>
+
+            <div class="directory-meta">
+                <b id="attendanceResultCount">0 records</b>
+                <span>Employee daily attendance logs</span>
+            </div>
+
+            <section id="attendanceTableContainer" class="panel table-panel">
+                <div class="loading">Loading attendance logs...</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<!-- MARK ATTENDANCE MODAL -->
+<div id="attendanceModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:90;align-items:center;justify-content:center;padding:16px;">
+    <div class="panel" style="width:min(100%, 480px);padding:24px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h2 style="margin:0;font-size:16px;">Mark Attendance</h2>
+            <button onclick="document.getElementById('attendanceModal').style.display='none'" style="border:0;background:transparent;font-size:20px;cursor:pointer;">×</button>
+        </div>
+        <form id="attendanceForm" style="display:grid;gap:14px;">
+            <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                Employee *
+                <select id="modalEmployeeSelect" required style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                    <option value="">Select Employee</option>
+                </select>
+            </label>
+            <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                Date *
+                <input type="date" id="modalDate" required style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+            </label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                    Check-in Time
+                    <input type="text" id="modalCheckIn" placeholder="09:00 AM" style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                </label>
+                <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                    Check-out Time
+                    <input type="text" id="modalCheckOut" placeholder="06:00 PM" style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                </label>
+            </div>
+            <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                Status
+                <select id="modalStatus" style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                    <option value="PRESENT">Present</option>
+                    <option value="HALF_DAY">Half Day</option>
+                    <option value="ON_LEAVE">On Leave</option>
+                    <option value="ABSENT">Absent</option>
+                </select>
+            </label>
+            <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                Remarks
+                <input type="text" id="modalRemarks" placeholder="Optional notes" style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+            </label>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+                <button type="button" class="btn secondary" onclick="document.getElementById('attendanceModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn primary">Save Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Employee</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="form">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item active" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">Admin</b>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <div class="eyebrow">Employee Management</div>
+                <h1 id="formTitle">Add employee</h1>
+                <p>Create a complete employee profile for your organization.</p>
+            </div>
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle">☾</button>
+                <a class="btn secondary" href="/employees">Cancel</a>
+            </div>
+        </header>
+
+        <section class="page">
+            <form id="employeeForm" class="form-layout">
+                <section class="panel form-section">
+                    <div class="section-title">
+                        <span class="section-number">01</span>
+                        <div>
+                            <h2>Personal information</h2>
+                            <p>Basic identity and contact details</p>
+                        </div>
+                    </div>
+                    <div class="photo-row">
+                        <div id="photoPreview" class="photo-preview">👤</div>
+                        <div>
+                            <label>Profile photo URL
+                                <input name="photoUrl" id="photoUrl" placeholder="https://.../profile.jpg">
+                            </label>
+                            <small class="hint">Paste a public image URL for employee avatar.</small>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <label>First name *<input required name="firstName"></label>
+                        <label>Last name *<input required name="lastName"></label>
+                        <label>Email *<input required type="email" name="email"></label>
+                        <label>Phone<input name="phone"></label>
+                        <label>Date of birth<input type="date" name="dateOfBirth"></label>
+                        <label>Gender
+                            <select name="gender">
+                                <option value="">Select</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Non-binary</option>
+                                <option>Prefer not to say</option>
+                            </select>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="panel form-section">
+                    <div class="section-title">
+                        <span class="section-number">02</span>
+                        <div>
+                            <h2>Employment details</h2>
+                            <p>Role, team and compensation</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <label>Department *
+                            <select required name="department" id="departmentSelect">
+                                <option value="">Loading departments...</option>
+                            </select>
+                        </label>
+                        <label>Job title *<input required name="jobTitle" placeholder="Software Developer"></label>
+                        <label>Employment type
+                            <select name="employmentType">
+                                <option value="">Select type</option>
+                                <option>Full-time</option>
+                                <option>Part-time</option>
+                                <option>Contract</option>
+                                <option>Intern</option>
+                            </select>
+                        </label>
+                        <label>Joining date<input type="date" name="joiningDate"></label>
+                        <label>Annual salary<input type="number" step="0.01" min="0" name="salary" placeholder="600000"></label>
+                        <label>Status
+                            <select name="active">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="panel form-section">
+                    <div class="section-title">
+                        <span class="section-number">03</span>
+                        <div>
+                            <h2>Address</h2>
+                            <p>Current residential information</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <label class="full">Street address<input name="address"></label>
+                        <label>City<input name="city"></label>
+                        <label>State<input name="state"></label>
+                        <label>Postal code<input name="postalCode"></label>
+                    </div>
+                </section>
+
+                <section class="panel form-section">
+                    <div class="section-title">
+                        <span class="section-number">04</span>
+                        <div>
+                            <h2>Emergency contact</h2>
+                            <p>Someone HR can contact in an emergency</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <label>Contact name<input name="emergencyContactName"></label>
+                        <label>Contact phone<input name="emergencyContactPhone"></label>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <a class="btn secondary" href="/employees">Cancel</a>
+                    <button class="btn primary" type="submit" id="saveEmployee">Save employee</button>
+                </div>
+                <div id="formMessage" class="form-message"></div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

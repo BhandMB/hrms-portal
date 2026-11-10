@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Leave Management</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="leave">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item active" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">Admin</b>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div>
+                    <div class="eyebrow">Time Off & Absence</div>
+                    <h1>Leave Management</h1>
+                    <p>Apply for leaves, track balances, and manage team approvals.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <button id="applyLeaveBtn" class="btn primary">＋ Apply for Leave</button>
+            </div>
+        </header>
+
+        <section class="page">
+            <!-- STATS -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">♧</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total Requests</span>
+                        <strong id="totalLeaveRequests">—</strong>
+                        <small>All time applications</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">◷</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Pending Review</span>
+                        <strong id="pendingLeaveRequests">—</strong>
+                        <small>Awaiting manager action</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">✓</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Approved</span>
+                        <strong id="approvedLeaveRequests">—</strong>
+                        <small class="stat-positive">Confirmed absence</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue">✕</div>
+                        <span class="stat-menu">•••</span>
+                    </div>
+                    <div class="stat-content">
+                        <span>Rejected</span>
+                        <strong id="rejectedLeaveRequests">—</strong>
+                        <small>Declined applications</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- LEAVE QUOTA & BALANCES -->
+            <div id="leaveQuotaSection" style="margin-bottom: 20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h3 style="font-size:14px;margin:0;font-weight:700;">Annual Leave Quotas & Balances</h3>
+                    <span style="font-size:12px;color:var(--muted)">Current Year Allowance</span>
+                </div>
+                <div id="leaveQuotaGrid" class="quota-grid">
+                    <!-- Populated dynamically via app.js -->
+                </div>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar panel">
+                <div class="search">
+                    <span>⌕</span>
+                    <input id="leaveSearch" placeholder="Filter by employee name, type, or reason...">
+                </div>
+                <select id="leaveStatusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+                <select id="leaveTypeFilter">
+                    <option value="">All Types</option>
+                    <option value="Casual Leave">Casual Leave</option>
+                    <option value="Sick Leave">Sick Leave</option>
+                    <option value="Annual Leave">Annual Leave</option>
+                    <option value="Unpaid Leave">Unpaid Leave</option>
+                </select>
+            </div>
+
+            <div class="directory-meta">
+                <b id="leaveResultCount">0 requests</b>
+                <span>Leave application history & approvals</span>
+            </div>
+
+            <!-- TABLE -->
+            <section id="leaveTableContainer" class="panel table-panel">
+                <div class="loading">Loading leave records...</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<!-- APPLY LEAVE MODAL -->
+<div id="leaveModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:90;align-items:center;justify-content:center;padding:16px;">
+    <div class="panel" style="width:min(100%, 500px);padding:24px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h2 style="margin:0;font-size:16px;">Apply for Leave</h2>
+            <button onclick="document.getElementById('leaveModal').style.display='none'" style="border:0;background:transparent;font-size:20px;cursor:pointer;">×</button>
+        </div>
+        <form id="leaveForm" style="display:grid;gap:14px;">
+            <label id="leaveEmployeeField" style="display:none;grid-gap:6px;font-size:11px;font-weight:700;">
+                Employee *
+                <select id="leaveEmployeeSelect" style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                    <option value="">Select Employee</option>
+                </select>
+            </label>
+            <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                Leave Type *
+                <select id="leaveType" required style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                    <option value="Casual Leave">Casual Leave</option>
+                    <option value="Sick Leave">Sick Leave</option>
+                    <option value="Annual Leave">Annual Leave</option>
+                    <option value="Unpaid Leave">Unpaid Leave</option>
+                </select>
+            </label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                    Start Date *
+                    <input type="date" id="leaveStartDate" required style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                </label>
+                <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                    End Date *
+                    <input type="date" id="leaveEndDate" required style="height:40px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);">
+                </label>
+            </div>
+            <label style="display:grid;gap:6px;font-size:11px;font-weight:700;">
+                Reason / Remarks
+                <textarea id="leaveReason" rows="3" placeholder="State reason for absence..." style="padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-family:inherit;font-size:12px;"></textarea>
+            </label>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+                <button type="button" class="btn secondary" onclick="document.getElementById('leaveModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn primary">Submit Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
+

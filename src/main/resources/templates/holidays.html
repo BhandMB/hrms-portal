@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Holiday Calendar</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="holidays">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item active" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">User</b>
+                    <small id="sidebarRole">Team Member</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="mobile-menu">☰</div>
+                <div>
+                    <div class="eyebrow">Workforce Calendar</div>
+                    <h1>Public & Company Holidays</h1>
+                    <p>Official observed holidays, non-working days, and regional holiday schedule.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <button class="btn primary hr-only" onclick="openNewHolidayModal()">
+                    <span>＋</span> Add Holiday
+                </button>
+            </div>
+        </header>
+
+        <section class="page">
+            <!-- STATS -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">🗓</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total Holidays</span>
+                        <strong id="totalHolidaysCount">—</strong>
+                        <small>In selected year</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">⏳</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Upcoming</span>
+                        <strong id="upcomingHolidaysCount">—</strong>
+                        <small class="stat-positive">Remaining this year</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">🎉</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Next Holiday</span>
+                        <strong id="nextHolidayName">—</strong>
+                        <small id="nextHolidayDate">—</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue">⏱</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Days Away</span>
+                        <strong id="nextHolidayCountdown">—</strong>
+                        <small>Countdown</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="search" style="flex:1;min-width:240px;">
+                    <span>⌕</span>
+                    <input id="holidaySearch" placeholder="Search holidays by name or description...">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <label style="font-size:12px;font-weight:600;">Year:</label>
+                    <select id="holidayYearSelect" class="form-control" style="width:auto;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <section id="holidayTableContainer" class="panel table-panel">
+                <div class="loading">Loading calendar holidays...</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<!-- ADD/EDIT HOLIDAY MODAL -->
+<div id="holidayModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:90;align-items:center;justify-content:center;padding:16px;">
+    <div class="panel" style="width:min(100%, 500px);padding:24px;border-radius:18px;max-height:90vh;overflow-y:auto;background:var(--surface);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+            <h2 id="modalHolidayTitle" style="margin:0;font-size:18px;">Add Holiday</h2>
+            <button onclick="closeHolidayModal()" style="border:0;background:transparent;font-size:22px;cursor:pointer;">×</button>
+        </div>
+
+        <form id="holidayForm" onsubmit="handleHolidaySubmit(event)">
+            <input type="hidden" id="holidayId">
+            <div style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Holiday Name *</label>
+                <input id="formHolidayName" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="e.g. Diwali / Republic Day">
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Date *</label>
+                    <input type="date" id="formHolidayDate" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+                </div>
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Holiday Type</label>
+                    <select id="formHolidayType" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+                        <option value="PUBLIC">Public Holiday</option>
+                        <option value="OPTIONAL">Optional / Restricted</option>
+                        <option value="COMPANY">Company Observance</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Description</label>
+                <input id="formHolidayDesc" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="Optional details...">
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border);padding-top:14px;">
+                <button type="button" class="btn secondary" onclick="closeHolidayModal()">Cancel</button>
+                <button type="submit" class="btn primary">Save Holiday</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

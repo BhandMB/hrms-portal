@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Payroll & Payslips</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="payroll">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item active" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">Admin</b>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="mobile-menu">☰</div>
+                <div>
+                    <div class="eyebrow">Compensation & Benefits</div>
+                    <h1>Payroll & Payslip Management</h1>
+                    <p>Automated salary calculation, statutory deductions (PF, PT, TDS), and downloadable PDF payslips.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <button class="btn primary hr-only" onclick="openRunPayrollModal()">
+                    <span>⚡</span> Execute Monthly Run
+                </button>
+            </div>
+        </header>
+
+        <section class="page">
+            <!-- STATS -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">₹</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total Monthly Gross</span>
+                        <strong id="payrollMonthlyGross">—</strong>
+                        <small>Total compensation</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">▤</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total Deductions</span>
+                        <strong id="payrollTotalDeductions">—</strong>
+                        <small>PF, PT & Income Tax</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">✓</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Net Disbursed</span>
+                        <strong id="payrollNetPay">—</strong>
+                        <small class="stat-positive">Take-home total</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue">♙</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Processed Slips</span>
+                        <strong id="payrollEmployeeCount">—</strong>
+                        <small>Generated records</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="search" style="flex:1;min-width:240px;">
+                    <span>⌕</span>
+                    <input id="payrollSearch" placeholder="Search payroll by employee name or department...">
+                </div>
+                <select id="payrollDepartmentFilter" class="form-control" style="width:auto;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);">
+                    <option value="">All Departments</option>
+                </select>
+                <select id="payrollStatusFilter" class="form-control" style="width:auto;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);">
+                    <option value="">All Statuses</option>
+                    <option value="PAID">Paid</option>
+                    <option value="GENERATED">Generated</option>
+                </select>
+            </div>
+
+            <div class="directory-meta">
+                <b id="payrollResultCount">0 records</b>
+                <span>Click "Download PDF" on any payslip for an official printable document.</span>
+            </div>
+
+            <!-- TABLE -->
+            <section id="payrollTableContainer" class="panel table-panel">
+                <div class="loading">Loading enterprise payroll data...</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<!-- RUN MONTHLY PAYROLL MODAL -->
+<div id="runPayrollModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:90;align-items:center;justify-content:center;padding:16px;">
+    <div class="panel" style="width:min(100%, 460px);padding:24px;border-radius:18px;background:var(--surface);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+            <h2 style="margin:0;font-size:18px;">Execute Monthly Payroll Run</h2>
+            <button onclick="closeRunPayrollModal()" style="border:0;background:transparent;font-size:22px;cursor:pointer;">×</button>
+        </div>
+
+        <form id="runPayrollForm" onsubmit="handleRunPayrollSubmit(event)">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">
+                This process calculates salaries, deductions, taxes, and generates official payslips for all active employees.
+            </p>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Year *</label>
+                    <select id="runPayrollYear" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Month *</label>
+                    <select id="runPayrollMonth" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10" selected>October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border);padding-top:14px;">
+                <button type="button" class="btn secondary" onclick="closeRunPayrollModal()">Cancel</button>
+                <button type="submit" class="btn primary">Run & Calculate Slips</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- PAYSLIP PREVIEW MODAL -->
+<div id="payslipModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:90;align-items:center;justify-content:center;padding:16px;">
+    <div class="panel" style="width:min(100%, 650px);padding:30px;border-radius:18px;max-height:90vh;overflow-y:auto;background:var(--surface);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;">
+            <div>
+                <h2 style="margin:0;font-size:20px;letter-spacing:-.03em;">HRMS PAYSLIP</h2>
+                <p style="margin:4px 0 0;color:var(--muted);font-size:11px;">People Operations • Monthly Salary Statement</p>
+            </div>
+            <button onclick="document.getElementById('payslipModal').style.display='none'" style="border:0;background:transparent;font-size:24px;cursor:pointer;">×</button>
+        </div>
+
+        <div id="payslipContent">
+            <!-- Dynamic Payslip Content -->
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px;border-top:1px solid var(--border);padding-top:16px;">
+            <button class="btn secondary" onclick="document.getElementById('payslipModal').style.display='none'">Close</button>
+            <a id="downloadPdfLink" href="#" target="_blank" class="btn primary" style="text-decoration:none;">
+                📥 Download Official PDF
+            </a>
+            <button class="btn secondary" onclick="window.print()">🖨 Print</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+services:
+  # HRMS Portal Web Application
+  - type: web
+    name: hrms-portal
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_URL
+        fromDatabase:
+          name: hrms-postgres
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: hrms-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: hrms-postgres
+          property: password
+
+databases:
+  # Managed Cloud Database
+  - name: hrms-postgres
+    plan: free
+    region: oregon
+    databaseName: hrms_db
+    user: hrms_admin

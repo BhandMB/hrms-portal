@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Performance Reviews</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="performance">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item active" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">User</b>
+                    <small id="sidebarRole">Team Member</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="mobile-menu">☰</div>
+                <div>
+                    <div class="eyebrow">Talent & Appraisals</div>
+                    <h1>Performance Reviews</h1>
+                    <p>Track employee competencies, goals, manager feedback, and appraisal cycles.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <button class="btn primary hr-only" onclick="openNewReviewModal()">
+                    <span>＋</span> Create Review
+                </button>
+            </div>
+        </header>
+
+        <section class="page">
+            <!-- STATS -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">⭐</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total Reviews</span>
+                        <strong id="totalReviewsCount">—</strong>
+                        <small>All cycles</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">★</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Average Rating</span>
+                        <strong id="avgRatingScore">—</strong>
+                        <small class="stat-positive">Out of 5.0</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">⏳</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Pending Action</span>
+                        <strong id="pendingReviewsCount">—</strong>
+                        <small>Awaiting acknowledgment</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue">✓</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Completed</span>
+                        <strong id="completedReviewsCount">—</strong>
+                        <small>Finalized appraisals</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="search" style="flex:1;min-width:240px;">
+                    <span>⌕</span>
+                    <input id="reviewSearch" placeholder="Search reviews by employee name or period...">
+                </div>
+                <select id="reviewStatusFilter" class="form-control" style="width:auto;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="ACKNOWLEDGED">Acknowledged</option>
+                </select>
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <section id="reviewTableContainer" class="panel table-panel">
+                <div class="loading">Loading performance appraisals...</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<!-- CREATE/EDIT REVIEW MODAL -->
+<div id="reviewModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:90;align-items:center;justify-content:center;padding:16px;">
+    <div class="panel" style="width:min(100%, 650px);padding:24px;border-radius:18px;max-height:90vh;overflow-y:auto;background:var(--surface);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+            <h2 id="modalReviewTitle" style="margin:0;font-size:18px;">Create Performance Review</h2>
+            <button onclick="closeReviewModal()" style="border:0;background:transparent;font-size:22px;cursor:pointer;">×</button>
+        </div>
+
+        <form id="reviewForm" onsubmit="handleReviewSubmit(event)">
+            <input type="hidden" id="reviewId">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Employee *</label>
+                    <select id="formReviewEmployee" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);">
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Review Period *</label>
+                    <input id="formReviewPeriod" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="e.g. Q4 2026 or Annual 2026">
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Performance Rating (1.0 to 5.0) *</label>
+                    <input type="number" step="0.1" min="1.0" max="5.0" id="formReviewRating" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="4.5">
+                </div>
+                <div>
+                    <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Reviewer Name</label>
+                    <input id="formReviewerName" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="e.g. Manager Name">
+                </div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Goals & Key Accomplishments</label>
+                <textarea id="formReviewGoals" rows="3" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);resize:vertical;" placeholder="Key objectives met..."></textarea>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Manager Feedback & Comments *</label>
+                <textarea id="formReviewComments" required rows="3" class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);resize:vertical;" placeholder="Detailed feedback and strengths..."></textarea>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border);padding-top:14px;">
+                <button type="button" class="btn secondary" onclick="closeReviewModal()">Cancel</button>
+                <button type="submit" class="btn primary">Save Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

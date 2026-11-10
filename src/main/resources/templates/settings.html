@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • Account & System Settings</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="settings">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item active" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">User</b>
+                    <small id="sidebarRole">Team Member</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="mobile-menu">☰</div>
+                <div>
+                    <div class="eyebrow">Preferences & Security</div>
+                    <h1>Account & System Settings</h1>
+                    <p>Manage your account credentials, security preferences, and view system specifications.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <form action="/logout" method="post" style="display:inline;">
+                    <input type="hidden" name="_csrf" id="logoutCsrf">
+                    <button type="submit" class="btn secondary" style="color:var(--danger, #ef4444);">
+                        🚪 Sign Out
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <section class="page">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:24px;">
+
+                <!-- CHANGE PASSWORD CARD -->
+                <div class="panel" style="padding:24px;border-radius:18px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                        <span style="font-size:24px;">🔑</span>
+                        <div>
+                            <h2 style="margin:0;font-size:16px;">Security & Password</h2>
+                            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Update your login password regularly for account protection.</p>
+                        </div>
+                    </div>
+
+                    <form id="changePasswordForm" onsubmit="handleChangePasswordSubmit(event)">
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Current Password *</label>
+                            <input type="password" id="settingsCurrentPassword" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="••••••••">
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">New Password *</label>
+                            <input type="password" id="settingsNewPassword" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="Min 6 characters">
+                        </div>
+
+                        <div style="margin-bottom:18px;">
+                            <label style="display:block;margin-bottom:6px;font-size:12px;font-weight:600;">Confirm New Password *</label>
+                            <input type="password" id="settingsConfirmPassword" required class="form-control" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);" placeholder="Re-enter new password">
+                        </div>
+
+                        <div id="passwordAlert" style="display:none;padding:10px;border-radius:8px;margin-bottom:14px;font-size:13px;"></div>
+
+                        <button type="submit" class="btn primary" style="width:100%;">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+
+                <!-- PROFILE DETAILS CARD -->
+                <div class="panel" style="padding:24px;border-radius:18px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                        <span style="font-size:24px;">👤</span>
+                        <div>
+                            <h2 style="margin:0;font-size:16px;">Current Session Profile</h2>
+                            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Authenticated user session information.</p>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;gap:14px;">
+                        <div style="display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:var(--surface-hover, rgba(0,0,0,.02));">
+                            <span style="font-size:13px;color:var(--muted);">Username</span>
+                            <strong id="profileUsernameVal" style="font-size:13px;">—</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:var(--surface-hover, rgba(0,0,0,.02));">
+                            <span style="font-size:13px;color:var(--muted);">System Role</span>
+                            <span id="profileRoleBadge" class="badge green">EMPLOYEE</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:var(--surface-hover, rgba(0,0,0,.02));">
+                            <span style="font-size:13px;color:var(--muted);">Employee ID</span>
+                            <span id="profileEmpIdVal" style="font-size:13px;font-weight:600;">—</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:var(--surface-hover, rgba(0,0,0,.02));">
+                            <span style="font-size:13px;color:var(--muted);">CSRF Protection</span>
+                            <span class="badge blue">ACTIVE</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:var(--surface-hover, rgba(0,0,0,.02));">
+                            <span style="font-size:13px;color:var(--muted);">Session Type</span>
+                            <span style="font-size:13px;">Secure Cookie Session</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ENTERPRISE ARCHITECTURE & DIAGNOSTICS CARD -->
+                <div class="panel" style="padding:24px;border-radius:18px;grid-column:1 / -1;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                        <span style="font-size:24px;">⚡</span>
+                        <div>
+                            <h2 style="margin:0;font-size:16px;">Platform & Architecture Specifications</h2>
+                            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">High-performance enterprise runtime metadata.</p>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;">
+                        <div class="stat-card" style="padding:16px;">
+                            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">Java Runtime</span>
+                            <strong style="font-size:16px;margin-top:4px;display:block;">JDK 17 LTS</strong>
+                            <small class="stat-positive">Oracle / HotSpot 64-Bit</small>
+                        </div>
+                        <div class="stat-card" style="padding:16px;">
+                            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">Framework Core</span>
+                            <strong style="font-size:16px;margin-top:4px;display:block;">Spring Boot & Spring 7</strong>
+                            <small class="stat-positive">Security + JPA + WebMVC</small>
+                        </div>
+                        <div class="stat-card" style="padding:16px;">
+                            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">In-Memory Caching</span>
+                            <strong style="font-size:16px;margin-top:4px;display:block;">Spring Cache Engine</strong>
+                            <small class="stat-positive">4 Active Regional Caches</small>
+                        </div>
+                        <div class="stat-card" style="padding:16px;">
+                            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">PDF Engine</span>
+                            <strong style="font-size:16px;margin-top:4px;display:block;">OpenPDF 1.3</strong>
+                            <small class="stat-positive">Enterprise Salary Slips</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

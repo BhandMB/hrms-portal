@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS • System Audit Trail</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="audit-log">
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="/dashboard">
+            <span class="brand-mark">H</span>
+            <span><b>HRMS</b><small>People Operations</small></span>
+        </a>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/dashboard"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+            <a class="nav-item" href="/employees"><span class="nav-icon">♙</span><span>Employees</span></a>
+            <a class="nav-item" href="/departments"><span class="nav-icon">▣</span><span>Departments</span></a>
+            <a class="nav-item" href="/attendance"><span class="nav-icon">◷</span><span>Attendance</span></a>
+            <a class="nav-item" href="/leave"><span class="nav-icon">♧</span><span>Leave</span></a>
+            <a class="nav-item" href="/payroll"><span class="nav-icon">▤</span><span>Payroll</span></a>
+            <a class="nav-item" href="/reports"><span class="nav-icon">◫</span><span>Reports</span></a>
+            <a class="nav-item" href="/announcements"><span class="nav-icon">📢</span><span>Announcements</span></a>
+            <a class="nav-item" href="/holidays"><span class="nav-icon">🗓</span><span>Holidays</span></a>
+            <a class="nav-item" href="/performance"><span class="nav-icon">⭐</span><span>Performance</span></a>
+            <a class="nav-item admin-only" href="/user-management"><span class="nav-icon">👥</span><span>Users</span></a>
+            <a class="nav-item active admin-only" href="/audit-log"><span class="nav-icon">📜</span><span>Audit Log</span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="nav-item" href="/settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
+            <div class="mini-user">
+                <div class="avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <b id="sidebarUsername">Admin</b>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <span class="user-status"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="mobile-menu">☰</div>
+                <div>
+                    <div class="eyebrow">Enterprise Governance</div>
+                    <h1>Security & Compliance Audit Trail</h1>
+                    <p>Tamper-evident logs of administrative actions, payroll disbursements, and employee records updates.</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle dark mode">☾</button>
+                <button class="btn secondary" onclick="loadAuditLogs()">
+                    <span>↻</span> Refresh Logs
+                </button>
+            </div>
+        </header>
+
+        <section class="page">
+            <!-- STATS -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon purple">📜</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Total Events</span>
+                        <strong id="totalAuditEvents">—</strong>
+                        <small>Recorded actions</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon green">＋</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Creates</span>
+                        <strong id="auditCreatesCount">—</strong>
+                        <small class="stat-positive">New entities</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon blue">✎</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Updates</span>
+                        <strong id="auditUpdatesCount">—</strong>
+                        <small>Modifications</small>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-top">
+                        <div class="stat-icon orange">🛡</div>
+                    </div>
+                    <div class="stat-content">
+                        <span>Active Operators</span>
+                        <strong id="auditOperatorsCount">—</strong>
+                        <small>Unique users</small>
+                    </div>
+                </article>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="search" style="flex:1;min-width:240px;">
+                    <span>⌕</span>
+                    <input id="auditSearch" placeholder="Search event descriptions or actor...">
+                </div>
+                <select id="auditEntityFilter" class="form-control" style="width:auto;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);">
+                    <option value="">All Entities</option>
+                    <option value="EMPLOYEE">Employee</option>
+                    <option value="DEPARTMENT">Department</option>
+                    <option value="PAYROLL">Payroll</option>
+                    <option value="LEAVE">Leave</option>
+                    <option value="USER">User</option>
+                    <option value="ANNOUNCEMENT">Announcement</option>
+                    <option value="HOLIDAY">Holiday</option>
+                    <option value="PERFORMANCE_REVIEW">Performance Review</option>
+                </select>
+                <select id="auditActionFilter" class="form-control" style="width:auto;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);">
+                    <option value="">All Actions</option>
+                    <option value="CREATE">CREATE</option>
+                    <option value="UPDATE">UPDATE</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="GENERATE">GENERATE</option>
+                </select>
+            </div>
+
+            <!-- TABLE CONTAINER -->
+            <section id="auditTableContainer" class="panel table-panel">
+                <div class="loading">Loading enterprise audit stream...</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

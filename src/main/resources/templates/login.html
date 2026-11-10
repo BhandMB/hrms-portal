@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HRMS • Sign in</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/css/style.css"></head>
+<body class="login-page">
+<div class="login-shell">
+  <div class="login-brand"><span class="brand-mark">H</span><div><b>HRMS</b><small>People Operations</small></div></div>
+  <section class="login-card">
+    <div class="login-heading"><div class="eyebrow">Secure workspace</div><h1>Welcome back</h1><p>Sign in to manage your organization's workforce.</p></div>
+    <div th:if="${param.error}" class="login-alert error">Invalid username or password.</div>
+    <div th:if="${param.logout}" class="login-alert success">You have been signed out successfully.</div>
+    <form method="post" th:action="@{/login}" class="login-form">
+      <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <label>Username<input name="username" autocomplete="username" required autofocus placeholder="Enter username"></label>
+      <label>Password<input type="password" name="password" autocomplete="current-password" required placeholder="Enter password"></label>
+      <button class="btn primary login-btn" type="submit">Sign in <span>→</span></button>
+    </form>
+    <div class="demo-accounts"><b>Demo accounts</b><div><span>Admin</span> admin / Admin@123</div><div><span>HR</span> hr / Hr@12345</div><div><span>Employee</span> employee / Employee@123</div></div>
+  </section>
+  <p class="login-footer">HRMS Portal • Role-based access control</p>
+</div>
+</body></html>
