@@ -7,6 +7,8 @@ This document provides complete instructions for deploying the **HRMS Portal** a
 4. **Automated CI/CD with GitHub Actions**
 5. **Domain & SSL Setup (Let's Encrypt)**
 
+Production requires `HRMS_BOOTSTRAP_ADMIN_USERNAME` and a unique `HRMS_BOOTSTRAP_ADMIN_PASSWORD` of at least 16 characters for the first startup. Configure them as platform environment variables or secrets; once an enabled administrator exists, the bootstrap values can be removed.
+
 ---
 
 ## 📋 Pre-Deployment Checklist
@@ -32,8 +34,9 @@ Render allows you to deploy both the web application and a managed database effo
 5. Render will automatically provision:
    - **PostgreSQL Database** (`hrms-postgres`)
    - **HRMS Web Service** (`hrms-portal`) built directly from the `Dockerfile`.
-6. Click **Apply**.
-7. Once deployed, Render provides an HTTPS URL (e.g., `https://hrms-portal.onrender.com`).
+6. Enter a bootstrap administrator username and a unique password of at least 16 characters when prompted for `HRMS_BOOTSTRAP_ADMIN_USERNAME` and `HRMS_BOOTSTRAP_ADMIN_PASSWORD`.
+7. Click **Apply**.
+8. Once deployed, Render provides an HTTPS URL (e.g., `https://hrms-portal.onrender.com`).
 
 ---
 
@@ -49,7 +52,13 @@ Railway detects the included [`Dockerfile`](file:///d:/Javaaaa/hrms-portal/Docke
 4. Link the database variables:
    - In your Web Service settings, add variable `DB_URL` referencing your database connection URL (or Railway's `DATABASE_URL`).
    - Set `SPRING_PROFILES_ACTIVE=prod`.
+   - Add `HRMS_BOOTSTRAP_ADMIN_USERNAME` and `HRMS_BOOTSTRAP_ADMIN_PASSWORD`, using a unique password of at least 16 characters.
 5. Railway will build and deploy automatically with zero manual server maintenance.
+
+For Fly.io, set the bootstrap values as secrets before the first deployment:
+```bash
+fly secrets set HRMS_BOOTSTRAP_ADMIN_USERNAME=your-admin HRMS_BOOTSTRAP_ADMIN_PASSWORD=your-unique-16-character-or-longer-secret
+```
 
 ---
 
@@ -81,7 +90,7 @@ Ideal for **DigitalOcean Droplets**, **AWS EC2**, **Linode**, or **Hetzner**.
    cp .env.example .env
    nano .env
    ```
-   *Change `DB_PASSWORD` to a secure password.*
+   Set `DB_PASSWORD` to a strong database password and set `HRMS_BOOTSTRAP_ADMIN_USERNAME` plus a unique `HRMS_BOOTSTRAP_ADMIN_PASSWORD` of at least 16 characters.
 
 5. **Build and Start Containers:**
    ```bash
@@ -93,6 +102,8 @@ Ideal for **DigitalOcean Droplets**, **AWS EC2**, **Linode**, or **Hetzner**.
    docker compose ps
    docker compose logs -f hrms-portal
    ```
+
+   After the first successful startup, remove the bootstrap admin values from `.env`; keep the database password.
 
 Your portal will be live at `http://your-server-ip:8080`.
 
@@ -128,13 +139,19 @@ sudo useradd -r -s /bin/false hrms
 cd /opt/hrms-portal
 sudo cp deployment/hrms.service /etc/systemd/system/hrms.service
 
-# Edit credentials in service file
-sudo nano /etc/systemd/system/hrms.service
+# Create the private environment file referenced by the service
+sudo install -d -m 700 /etc/hrms
+sudo install -m 600 /dev/null /etc/hrms/hrms.env
+sudo nano /etc/hrms/hrms.env
+```
+Add `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `HRMS_BOOTSTRAP_ADMIN_USERNAME`, and `HRMS_BOOTSTRAP_ADMIN_PASSWORD` to `/etc/hrms/hrms.env`. Use a unique bootstrap password of at least 16 characters.
 
+```bash
 # Run deployment script
 sudo chmod +x deployment/deploy.sh
 sudo ./deployment/deploy.sh
 ```
+After the first successful startup, remove the bootstrap admin values from `/etc/hrms/hrms.env`; keep the database settings.
 
 ---
 
@@ -179,8 +196,8 @@ The repository includes a ready-to-use GitHub Actions workflow in [`.github/work
 
 ## 🛡️ Production Security Recommendations
 
-1. **Change Default Passwords:**
-   Immediately log into `admin` and navigate to `/settings` or `/user-management` to update the default passwords for `admin`, `hr`, and `employee`.
+1. **Secure Initial Admin Access:**
+   Production does not enable public demo credentials. Use the bootstrap admin variables for the first startup, then remove them and manage accounts through the portal.
 2. **Restrict Actuator in Production:**
    In `application-prod.properties`, actuator endpoints are limited to `/health` and `/info` with details hidden for unauthenticated traffic.
 3. **Database Backups:**

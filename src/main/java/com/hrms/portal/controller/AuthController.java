@@ -1,5 +1,6 @@
 package com.hrms.portal.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,7 +11,10 @@ import java.util.Map;
 @Controller
 public class AuthController {
     @GetMapping("/login")
-    public String login(Model model) { return "login"; }
+    public String login(Model model, @Value("${hrms.demo-accounts.enabled:false}") boolean demoAccountsEnabled) {
+        model.addAttribute("demoAccountsEnabled", demoAccountsEnabled);
+        return "login";
+    }
 
     @org.springframework.web.bind.annotation.RequestMapping("/access-denied")
     public String denied() { return "access-denied"; }

@@ -6,6 +6,7 @@ import com.hrms.portal.service.LeaveBalanceService;
 import com.hrms.portal.service.PayrollService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,15 +34,27 @@ public class DataInitializer {
                                LeaveBalanceService leaveBalanceService,
                                AuditLogRepository auditLogRepo,
                                PayrollService payrollService,
-                               PasswordEncoder encoder) {
+                               PasswordEncoder encoder,
+                               @Value("${hrms.demo-accounts.enabled:false}") boolean demoAccountsEnabled,
+                               @Value("${hrms.bootstrap-admin.username:}") String bootstrapAdminUsername,
+                               @Value("${hrms.bootstrap-admin.password:}") String bootstrapAdminPassword,
+                               @Value("${hrms.bootstrap-admin.required:false}") boolean bootstrapAdminRequired) {
         return args -> {
+            if (!demoAccountsEnabled) {
+                disableDefaultDemoAccounts(users, encoder);
+            }
+            configureBootstrapAdmin(users, encoder, demoAccountsEnabled, bootstrapAdminUsername,
+                    bootstrapAdminPassword, bootstrapAdminRequired);
+
             seedDepartments(departments);
             List<Employee> seeded = seedEmployees(employees, departments);
             Employee demoEmployee = seeded.get(0);
 
-            createUser(users, encoder, "admin", "Admin@123", "ADMIN", null);
-            createUser(users, encoder, "hr", "Hr@12345", "HR", null);
-            createUser(users, encoder, "employee", "Employee@123", "EMPLOYEE", demoEmployee.getId());
+            if (demoAccountsEnabled) {
+                createUser(users, encoder, "admin", "Admin@123", "ADMIN", null);
+                createUser(users, encoder, "hr", "Hr@12345", "HR", null);
+                createUser(users, encoder, "employee", "Employee@123", "EMPLOYEE", demoEmployee.getId());
+            }
 
             seedAttendanceAndLeaves(attendanceRepo, leaveRepo, seeded);
             seedAnnouncements(announcementRepo);
@@ -292,5 +305,72 @@ public class DataInitializer {
             repo.save(user);
         }
         return user;
+    }
+
+    private void configureBootstrapAdmin(UserRepository repo, PasswordEncoder encoder, boolean demoAccountsEnabled,
+                                         String username, String password, boolean required) {
+        boolean hasUsername = username != null && !username.isBlank();
+        boolean hasPassword = password != null && !password.isBlank();
+        if (!hasUsername && !hasPassword) {
+            if (required && repo.findAll().stream()
+                    .noneMatch(user -> user.isEnabled() && user.getRole().equals("ADMIN"))) {
+                throw new IllegalStateException(
+                        "Set HRMS_BOOTSTRAP_ADMIN_USERNAME and HRMS_BOOTSTRAP_ADMIN_PASSWORD to create the initial administrator");
+            }
+            return;
+        }
+        if (required && (!hasUsername || !hasPassword)) {
+            throw new IllegalStateException(
+                    "HRMS_BOOTSTRAP_ADMIN_USERNAME and HRMS_BOOTSTRAP_ADMIN_PASSWORD must be configured");
+        }
+        if (hasUsername != hasPassword) {
+            throw new IllegalStateException(
+                    "HRMS_BOOTSTRAP_ADMIN_USERNAME and HRMS_BOOTSTRAP_ADMIN_PASSWORD must both be configured");
+        }
+        if (!hasUsername) {
+            return;
+        }
+        if (demoAccountsEnabled) {
+            throw new IllegalStateException("Bootstrap admin credentials cannot be used while demo accounts are enabled");
+        }
+        if (password.length() < 16) {
+            throw new IllegalStateException("HRMS_BOOTSTRAP_ADMIN_PASSWORD must be at least 16 characters");
+        }
+
+        User existing = repo.findByUsername(username).orElse(null);
+        if (existing == null) {
+            repo.save(new User(username, encoder.encode(password), "ADMIN"));
+            return;
+        }
+
+        if (existing.getRole().equals("ADMIN") && existing.isEnabled()) {
+            return;
+        }
+        if (existing.getRole().equals("ADMIN")
+                && encoder.matches("Admin@123", existing.getPassword())) {
+            existing.setPassword(encoder.encode(password));
+            existing.setEnabled(true);
+            repo.save(existing);
+            return;
+        }
+        throw new IllegalStateException(
+                "The configured bootstrap admin username already exists and is not an enabled administrator");
+    }
+
+    private void disableDefaultDemoAccounts(UserRepository repo, PasswordEncoder encoder) {
+        disableDefaultDemoAccount(repo, encoder, "admin", "Admin@123", "ADMIN");
+        disableDefaultDemoAccount(repo, encoder, "hr", "Hr@12345", "HR");
+        disableDefaultDemoAccount(repo, encoder, "employee", "Employee@123", "EMPLOYEE");
+    }
+
+    private void disableDefaultDemoAccount(UserRepository repo, PasswordEncoder encoder, String username,
+                                           String defaultPassword, String role) {
+        repo.findByUsername(username)
+                .filter(user -> user.getRole().equals(role) && user.isEnabled()
+                        && encoder.matches(defaultPassword, user.getPassword()))
+                .ifPresent(user -> {
+                    user.setEnabled(false);
+                    repo.save(user);
+                });
     }
 }

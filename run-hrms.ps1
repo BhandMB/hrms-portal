@@ -18,6 +18,7 @@ if (Test-Path "$java17\bin\java.exe") {
 }
 
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
+$env:DEMO_ACCOUNTS_ENABLED = 'true'
 
 Write-Host "Using Java:" -ForegroundColor Cyan
 java --version

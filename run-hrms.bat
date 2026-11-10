@@ -11,6 +11,7 @@ if not defined JAVA_HOME (
   exit /b 1
 )
 set "PATH=%JAVA_HOME%\bin;%PATH%"
+set "DEMO_ACCOUNTS_ENABLED=true"
 java --version
 where mvn >nul 2>nul
 if not errorlevel 1 (

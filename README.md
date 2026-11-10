@@ -37,13 +37,15 @@ A portfolio-ready, enterprise-grade **Human Resource Management System (HRMS)** 
 
 ## 🔑 Demo Access & Roles
 
-The system is pre-seeded with 3 operational roles:
+The local H2 profile is pre-seeded with 3 demo roles:
 
 | Role | Username | Password | Permitted Actions |
 |---|---|---|---|
 | **Admin** | `admin` | `Admin@123` | Full access across all 12 modules: User accounts, batch payroll, settings, approvals |
 | **HR Specialist** | `hr` | `Hr@12345` | Employee onboarding, attendance corrections, leave approvals, announcements, holiday management |
 | **Employee** | `employee` | `Employee@123` | Self-service profile, clock in/out, submit leave requests, view & download PDF payslips |
+
+These public demo credentials are enabled only by the local H2 profile and local run scripts. Production deployments do not seed or display demo accounts. Set `HRMS_BOOTSTRAP_ADMIN_USERNAME` and a unique `HRMS_BOOTSTRAP_ADMIN_PASSWORD` (at least 16 characters) before starting with the `prod` profile; the first startup creates that administrator. Remove the bootstrap credentials from the environment afterward. Existing demo accounts still using their published default passwords are disabled on production startup.
 
 ---
 
@@ -93,6 +95,8 @@ Open your browser at: **`http://localhost:8080/login`**
 Run both MySQL 8 and the HRMS application in orchestrated containers:
 
 ```bash
+cp .env.example .env
+# Set DB_PASSWORD and the HRMS_BOOTSTRAP_ADMIN_* values in .env before startup.
 docker compose up -d --build
 ```
 

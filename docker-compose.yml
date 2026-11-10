@@ -8,13 +8,13 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-hrms_db}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root123}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
     ports:
       - "${DB_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-root123}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:?Set DB_PASSWORD in .env}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +32,9 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
       DB_URL: ${DB_URL:-jdbc:mysql://hrms-db:3306/hrms_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
       DB_USERNAME: ${DB_USERNAME:-root}
-      DB_PASSWORD: ${DB_PASSWORD:-root123}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      HRMS_BOOTSTRAP_ADMIN_USERNAME: ${HRMS_BOOTSTRAP_ADMIN_USERNAME:-}
+      HRMS_BOOTSTRAP_ADMIN_PASSWORD: ${HRMS_BOOTSTRAP_ADMIN_PASSWORD:-}
       PORT: ${PORT:-8080}
       JAVA_OPTS: ${JAVA_OPTS:--XX:+UseG1GC -XX:MaxRAMPercentage=75.0}
     ports:

@@ -14,7 +14,7 @@
       <label>Password<input type="password" name="password" autocomplete="current-password" required placeholder="Enter password"></label>
       <button class="btn primary login-btn" type="submit">Sign in <span>→</span></button>
     </form>
-    <div class="demo-accounts"><b>Demo accounts</b><div><span>Admin</span> admin / Admin@123</div><div><span>HR</span> hr / Hr@12345</div><div><span>Employee</span> employee / Employee@123</div></div>
+    <div th:if="${demoAccountsEnabled}" class="demo-accounts"><b>Demo accounts</b><div><span>Admin</span> admin / Admin@123</div><div><span>HR</span> hr / Hr@12345</div><div><span>Employee</span> employee / Employee@123</div></div>
   </section>
   <p class="login-footer">HRMS Portal • Role-based access control</p>
 </div>
